@@ -15,5 +15,6 @@ Too lazy to write an official build guide for the V1, so here's the jist:
 9. Wire the module up to the controller
 10. Take a gamecube extension cable and wire it up to the bi-directional level converter
 11. Wire the 5V power supply from the gamecube wire to the arduino + the 3.3V converter (i think i dont really remember, you probably shouldn't)
-12. Put 2 Dip Switch modules into where the original power switch was, and solder the legs to the nano
-13. cry because you spent like a month or two on this dumb project 
+12. Wire the gamecube data wires from the bi-directional converter to the nano
+13. Put 2 Dip Switch modules into where the original power switch was, and solder the legs to the nano
+14. cry because you spent like a month or two on this dumb project 
