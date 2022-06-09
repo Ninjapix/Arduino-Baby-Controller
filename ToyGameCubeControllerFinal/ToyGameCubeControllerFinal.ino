@@ -14,8 +14,8 @@ Gamecube_Data_t d = defaultGamecubeData; //sets up the gamecube data object
 CGamecubeController GamecubeController(13);//this is apparently needed, don't solder anything to digialpin 19 or analog pin A5 or SCL pin without changing this
 //Defining Pin Numbers: All are digital EXCEPT FOR THE X and Y AXIS ONES (so they're on the analog only pins)
 //Facebuttons (Letter corrisponds to Gamecube controller, see comments for actual buttons on the toy)
-const int pinA = 4; //point T13 on toy pcb, A button on toy
-const int pinB = 3; //point T16 on toy pcb, D button on toy
+const int pinA = 3; //point T13 on toy pcb, A button on toy
+const int pinB = 4; //point T16 on toy pcb, D button on toy
 const int pinX = 5; //point T14 on toy pcb, B button on toy
 const int pinY = 2; //point T15 on toy pcb, C buton on toy
 //Originally A = 2, B = 3, X = 4, Y = 5
@@ -90,7 +90,6 @@ void loop() {
 
   //Check if Rumble is activated, and if so activate
   if(rumbleToggle == true){
-    digitalWrite(RUMBLE_PIN, LOW);
     if(d.status.rumble){
       digitalWrite(RUMBLE_PIN, HIGH);
     }
@@ -112,6 +111,9 @@ void loop() {
   int rValue = 0;
   int lAnalogValue = 0;
   int rAnalogValue = 0;
+
+  //Rumble/Song pin reset
+  digitalWrite(RUMBLE_PIN, LOW);
   
   //Checking if the buttons are pressed or not
   if(digitalRead(pinA) == HIGH) aValue = 1;
@@ -138,7 +140,10 @@ void loop() {
       lValue = 1;
     }
   }
-  if(digitalRead(pinDpadU) == HIGH) dpadUpValue = 1;
+  if(digitalRead(pinDpadU) == HIGH){
+    dpadUpValue = 1;
+    digitalWrite(RUMBLE_PIN, HIGH);
+  }
   if(digitalRead(pinDpadD) == HIGH) dpadDownValue = 1;
   if(digitalRead(pinDpadL) == HIGH) dpadLeftValue = 1;
   if(digitalRead(pinDpadR) == HIGH) dpadRightValue = 1;
