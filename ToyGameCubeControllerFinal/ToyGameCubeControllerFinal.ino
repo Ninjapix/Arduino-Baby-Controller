@@ -113,7 +113,16 @@ void loop() {
   int rAnalogValue = 0;
 
   //Rumble/Song pin reset
-  digitalWrite(RUMBLE_PIN, LOW);
+  if(RUMBLE_PIN == HIGH){
+    if(rumbleTracker < 20){
+      rumbleTracker++;
+    }
+    else{
+      digitalWrite(RUMBLE_PIN, LOW);
+      rumbleTracker = 0;
+    }
+  }
+  
   
   //Checking if the buttons are pressed or not
   if(digitalRead(pinA) == HIGH) aValue = 1;
@@ -173,18 +182,19 @@ void loop() {
    */
   rawXPosition = analogRead(pinAxisX);
   xAxisValue = (int) (rawXPosition)/4;
-  if(486 <= rawXPosition && rawXPosition <= 496){
+  /*if(486 <= rawXPosition && rawXPosition <= 496){
     xAxisValue = 128;
-  }
+  }*/
   xAxisValue = abs(xAxisValue - 255);
   
   rawYPosition = analogRead(pinAxisY);
   yAxisValue = (int) (rawYPosition)/4;
-  if(535 <= rawYPosition && rawYPosition <= 531){
+  /*if(535 <= rawYPosition && rawYPosition <= 531){
     yAxisValue = 128;
-  }
+  } */
   yAxisValue = abs(yAxisValue - 255);
-
+  
+  
   //Reporting the button inputs:
   d.report.a = aValue;
   d.report.b = bValue; 
