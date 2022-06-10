@@ -7,6 +7,10 @@
 //EDIT THIS NUMBER IF YOU WANT A SMALLER/LARGER DEADZONE
 //const int DEADZONE = 10;
 //deadzone not implemented yet
+
+//EDIT FOR CORRECTION ANGLE (idk what this is if you're competent and properly installed the joystick)
+const int theta = 0.3534;
+
 //don't mess with the stuff below unless you know what you're doing
 
 CGamecubeConsole GamecubeConsole(12); //makes controller bidirection data line to be wired to digitalpin 12
@@ -54,6 +58,7 @@ bool rightAnalogToggle = false;
 bool leftAnalogToggle = false;
 bool zToRightTriggerToggle = false;
 bool leftTriggerToZToggle = false;
+bool rumbleActive = false;
 int rumbleTracker = 0;
 
 void setup() {
@@ -92,6 +97,7 @@ void loop() {
   if(rumbleToggle == true){
     if(d.status.rumble){
       digitalWrite(RUMBLE_PIN, HIGH);
+      rumbleActive = true;
     }
   }
   
@@ -113,16 +119,18 @@ void loop() {
   int rAnalogValue = 0;
 
   //Rumble/Song pin reset
-  if(RUMBLE_PIN == HIGH){
-    if(rumbleTracker < 20){
+  if(rumbleActive == true){
+    if(rumbleTracker < 10){
       rumbleTracker++;
     }
     else{
       digitalWrite(RUMBLE_PIN, LOW);
       rumbleTracker = 0;
+      rumbleActive = false;
     }
   }
-  
+
+  updateAxises();
   
   //Checking if the buttons are pressed or not
   if(digitalRead(pinA) == HIGH) aValue = 1;
@@ -152,6 +160,7 @@ void loop() {
   if(digitalRead(pinDpadU) == HIGH){
     dpadUpValue = 1;
     digitalWrite(RUMBLE_PIN, HIGH);
+    rumbleActive = true;
   }
   if(digitalRead(pinDpadD) == HIGH) dpadDownValue = 1;
   if(digitalRead(pinDpadL) == HIGH) dpadLeftValue = 1;
@@ -180,19 +189,7 @@ void loop() {
    * Afterwards, it checks if it's between +/-5 of the default resting position
    * Then, it inverts the value by taking the absolute value of the value minus the max value.
    */
-  rawXPosition = analogRead(pinAxisX);
-  xAxisValue = (int) (rawXPosition)/4;
-  /*if(486 <= rawXPosition && rawXPosition <= 496){
-    xAxisValue = 128;
-  }*/
-  xAxisValue = abs(xAxisValue - 255);
   
-  rawYPosition = analogRead(pinAxisY);
-  yAxisValue = (int) (rawYPosition)/4;
-  /*if(535 <= rawYPosition && rawYPosition <= 531){
-    yAxisValue = 128;
-  } */
-  yAxisValue = abs(yAxisValue - 255);
   
   
   //Reporting the button inputs:
@@ -289,4 +286,28 @@ void checkDipSwitches(){
     }
   }
   return;
+}
+
+void updateAxises(){
+  //Get X and Y Axis Values, Convert to 256 Values
+  rawXPosition = analogRead(pinAxisX);
+  xAxisValue = (int) (rawXPosition)/4;
+  /*if(486 <= rawXPosition && rawXPosition <= 496){
+    xAxisValue = 128;
+  }*/
+  rawYPosition = analogRead(pinAxisY);
+  yAxisValue = (int) (rawYPosition)/4;
+  /*if(535 <= rawYPosition && rawYPosition <= 531){
+    yAxisValue = 128;
+  } */
+  xAxisValue = xAxisValue*cos(theta) - yAxisValue*sin(theta);
+  yAxisValue = yAxisValue*cos(theta) + xAxisValue*sin(theta);
+  xAxisValue = abs(xAxisValue - 255);
+  yAxisValue = abs(yAxisValue - 255);
+  
+  //DEADZONE IMPLEMENTATION
+  if(486 <= rawXPosition && rawXPosition <= 496 && 535 <= rawYPosition && rawYPosition <= 531){
+    xAxisValue = 127;
+    yAxisValue = 127;
+  }
 }
