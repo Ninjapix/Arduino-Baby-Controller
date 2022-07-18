@@ -8,7 +8,17 @@
 //const int DEADZONE = 10;
 //deadzone not implemented yet
 
-//EDIT FOR CORRECTION ANGLE (idk what this is if you're competent and properly installed the joystick)
+/*
+* Calculate theta by putting the control stick at approximately all four cordinates; Up/Down/Left/Right and recording the values for them.
+* Then, solve for theta using the following equations, where x' and y' are the ideal x and y values you want to correct to:
+* x' = xcos(theta) - ysin(theta)
+* y' = xsin(theta) + ycos(theta)
+* I don't fully remember how I solved this at all but I think it was using matrices.
+* After solving for theta in each of these four cases, take the average for the best possible result. DO NOT USE DEGREES
+* You can also take the average of the specific coordinates that are an issue. 
+* Final note: The theta seen below was calculated using values from Goomy's Notch Visualizer; just to get the values.
+* Using raw data seems fine (like just observing the pot values in serial monitor) but I can't be 100% positive about the accuracy.
+*/
 const int theta = 0.3534;
 
 //don't mess with the stuff below unless you know what you're doing
@@ -94,12 +104,7 @@ void loop() {
   checkDipSwitches();
 
   //Check if Rumble is activated, and if so activate
-  if(rumbleToggle == true){
-    if(d.status.rumble){
-      digitalWrite(RUMBLE_PIN, HIGH);
-      rumbleActive = true;
-    }
-  }
+  rumbleFunction();
   
   //init the values of the controller's buttons, make sure they get refreshed back to 0
   int aValue = 0;
@@ -117,18 +122,6 @@ void loop() {
   int rValue = 0;
   int lAnalogValue = 0;
   int rAnalogValue = 0;
-
-  //Rumble/Song pin reset
-  if(rumbleActive == true){
-    if(rumbleTracker < 10){
-      rumbleTracker++;
-    }
-    else{
-      digitalWrite(RUMBLE_PIN, LOW);
-      rumbleTracker = 0;
-      rumbleActive = false;
-    }
-  }
 
   updateAxises();
   
@@ -159,8 +152,10 @@ void loop() {
   }
   if(digitalRead(pinDpadU) == HIGH){
     dpadUpValue = 1;
-    digitalWrite(RUMBLE_PIN, HIGH);
-    rumbleActive = true;
+    if(rumbleActive != true){
+        digitalWrite(RUMBLE_PIN, HIGH);
+        rumbleActive = true;
+    }
   }
   if(digitalRead(pinDpadD) == HIGH) dpadDownValue = 1;
   if(digitalRead(pinDpadL) == HIGH) dpadLeftValue = 1;
@@ -310,4 +305,22 @@ void updateAxises(){
     xAxisValue = 127;
     yAxisValue = 127;
   }
+}
+
+void rumbleFunction(){
+  if(rumbleToggle == true){
+    if(rumbleActive == true){
+        if(rumbleTracker < 20){
+            rumbleTracker = rumbleTracker + 1;
+            }else{
+                digitalWrite(RUMBLE_PIN, LOW);
+                rumbleTracker = 0;
+                rumbleActive = false;
+            }
+        }   
+    }
+    else if(d.status.rumble){
+      digitalWrite(RUMBLE_PIN, HIGH);
+      rumbleActive = true;
+    }
 }
