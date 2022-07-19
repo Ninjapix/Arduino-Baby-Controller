@@ -308,19 +308,19 @@ void updateAxises(){
 }
 
 void rumbleFunction(){
-  if(rumbleToggle == true){
-    if(rumbleActive == true){
-        if(rumbleTracker < 20){
+  if(rumbleActive == true){
+        if(rumbleTracker < 10){
             rumbleTracker = rumbleTracker + 1;
             }else{
                 digitalWrite(RUMBLE_PIN, LOW);
                 rumbleTracker = 0;
                 rumbleActive = false;
             }
-        }   
-    }
-    else if(d.status.rumble){
+  } 
+  else{
+    if(rumbleToggle == true && d.status.rumble){
       digitalWrite(RUMBLE_PIN, HIGH);
       rumbleActive = true;
     }
+  }
 }
